@@ -104,7 +104,11 @@ button:hover, #submit:hover:enabled { background-color: var(--green); color: var
   display: none;
   opacity: 0;
   transition: opacity 1s ease-in-out;
+  color: var(--yellow);
+  text-transform: uppercase;
+  font-size: 0.8em;
 }
+
 #pwdbox {
     border: 1px solid var(--blue); border-radius: 1em;
     font-size: 2vw; font-family: monospace;
