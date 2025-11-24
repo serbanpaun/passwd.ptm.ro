@@ -1,3 +1,7 @@
+<?php
+$nonce = base64_encode(random_bytes(16));
+header("Content-Security-Policy: default-src 'self'; script-src 'self' https://fonts.googleapis.com/ https://fonts.gstatic.com/ 'nonce-$nonce'; style-src 'self' https://fonts.googleapis.com/ https://fonts.gstatic.com/; font-src 'self' https://fonts.googleapis.com/ https://fonts.gstatic.com/;");
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -25,22 +29,7 @@
   <div id="bottom">
   <button id="submit" type="submit" class="btn btn-primary">Generate</button> <input id="length" name="length" type="number" min=16 max=128 value=16> characters
 
-	<script>
-  const num = document.getElementById('length');
-	num.addEventListener('wheel', function(e) {
-	  e.preventDefault();
-	  const step = parseFloat(this.step) || 1;
-	  let value = parseFloat(this.value) || 0;
-
-	  if (e.deltaY < 0) value += step;
-	  else value -= step;
-
-	  if (this.hasAttribute('min')) value = Math.max(value, parseFloat(this.min));
-	  if (this.hasAttribute('max')) value = Math.min(value, parseFloat(this.max));
-
-	  this.value = value;
-	});
-	</script>
+	<script src="numbers.js"></script>
   <div id="notice">
   	Minimum password length is 16 characters!<br>
   	We do not generate passwords longer than 128 characters, because that would be madness!
@@ -50,115 +39,14 @@
 </fieldset>
 </form>
 
-<script>
-const pwlower = document.getElementById('lowercase');
-const pwupper = document.getElementById('uppercase');
-const pwnumer = document.getElementById('numeric');
-const pwspecs = document.getElementById('special');
-const pwlowspecs = document.getElementById('lowspecial');
-const generatebtn = document.getElementById('submit');
-
-function switchbtn() {
-  generatebtn.disabled = !pwlower.checked && !pwupper.checked && !pwnumer.checked && !pwspecs.checked && !pwlowspecs.checked;
-}
-
-function selectall() {
-  pwlower.checked = true;
-  pwupper.checked = true;
-  pwnumer.checked = true;
-  pwspecs.checked = true;
-  pwlowspecs.checked = false;
-  switchbtn();
-}
-function toggle() {
-  pwlower.checked = !pwlower.checked;
-  pwupper.checked = !pwupper.checked;
-  pwnumer.checked = !pwnumer.checked;
-  pwspecs.checked = !pwspecs.checked;
-  pwlowspecs.checked = !pwlowspecs.checked;
-  switchbtn();
-}
-
-document.getElementById('pwform').addEventListener('submit', function(e) {
-  e.preventDefault(); // stop page refresh
-  generatePassword();
-});
-
-function getRandomChar(str) {
-  const array = new Uint32Array(1);
-  window.crypto.getRandomValues(array);
-  return str[array[0] % str.length];
-}
-
-function generatePassword() {
-  const alpha = "abcdefghjkmnpqrstuvwxyz";
-  const alpha_upper = alpha.toUpperCase();
-  const numeric = "0123456789";
-  const lowspecial = "!@#$%&*-=+_";
-  const special = lowspecial + "^[]'\\{}|,./?<>";
-  let chars = "";
-  let required = [];
-
-  if (pwlower.checked) {
-    chars += alpha;
-    required.push(getRandomChar(alpha));
-  }
-  if (pwupper.checked) {
-    chars += alpha_upper;
-    required.push(getRandomChar(alpha_upper));
-  }
-  if (pwnumer.checked) {
-    chars += numeric;
-    required.push(getRandomChar(numeric));
-  }
-  if (pwlowspecs.checked) {
-    chars += lowspecial;
-    required.push(getRandomChar(lowspecial));
-  } else if (pwspecs.checked) {
-    chars += special;
-    required.push(getRandomChar(special));
-  }
-
-  const len = parseInt(document.getElementById('length').value);
-  let pw = required;
-
-  for (let i = required.length; i < len; i++) {
-    pw.push(getRandomChar(chars));
-  }
-
-  for (let i = pw.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [pw[i], pw[j]] = [pw[j], pw[i]];
-  }
-
-  document.getElementById('cptctxt').innerText = pw.join('');
-  document.getElementById('pwdbox').style.display = 'block';
-}
-</script>
-
-<script>
-function copyToClipboard() {
-  const content = document.getElementById('cptctxt');
-  navigator.clipboard.writeText(content.innerText);
-    const hint = document.getElementById('hint');
-    hint.style.display = "block";
-    hint.style.opacity = 1;
-    setTimeout(() => {
-      hint.style.opacity = 0;
-      hint.addEventListener('transitionend', function handler() {
-        hint.style.display = "none";
-        hint.removeEventListener('transitionend', handler);
-      });
-    }, 2000);
-}
-</script>
-
+<script src="generate.js"></script>
 <div id="pwdbox">
   <div id="hint">Copied to clipboard</div>
-  <pre id="cptctxt" onclick="copyToClipboard()"></pre>
+  <pre id="cptctxt"></pre>
+  <script nonce="<?= $nonce ?>" src="copytoclipboard.js"></script>
 </div>
 <footer>
-<small>No generated passwords are stored on this server. &bull; <span class="red">PTM.ro</span> &bull; 2015 - <script>document.write(new Date().getFullYear())</script> &copy; All rights reserved &bull; 
+<small>No generated passwords are stored on this server. &bull; <span class="red">PTM.ro</span> &bull; 2015 - <script src="showyear.js"></script> &copy; All rights reserved &bull; 
   This code is
   <a href="https://validator.w3.org/nu/?doc=https%3A%2F%2Fpasswd.ptm.ro%2F" title="W3C Markup Validation">HTML5</a>
    and
