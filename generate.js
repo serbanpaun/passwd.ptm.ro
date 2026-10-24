@@ -31,10 +31,18 @@ document.getElementById('pwform').addEventListener('submit', function(e) {
   generatePassword();
 });
 
-function getRandomChar(str) {
+function getRandomInt(maxExclusive) {
+  const maxUint32 = 0x100000000;
+  const limit = maxUint32 - (maxUint32 % maxExclusive);
   const array = new Uint32Array(1);
-  window.crypto.getRandomValues(array);
-  return str[array[0] % str.length];
+  do {
+    window.crypto.getRandomValues(array);
+  } while (array[0] >= limit);
+  return array[0] % maxExclusive;
+}
+
+function getRandomChar(str) {
+  return str[getRandomInt(str.length)];
 }
 
 function generatePassword() {
@@ -74,7 +82,7 @@ function generatePassword() {
   }
 
   for (let i = pw.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
+    const j = getRandomInt(i + 1);
     [pw[i], pw[j]] = [pw[j], pw[i]];
   }
 
